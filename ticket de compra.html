@@ -1,0 +1,174 @@
+<!DOCTYPE html><html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ticket de Compra</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }#ticket {
+  width: 400px;
+  border: 1px solid black; /* borde más delgado */
+  padding: 20px;
+  margin: 20px auto;
+}
+
+#ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#logotipo img {
+  width: 80px;
+  height: auto;
+  border: 1px solid black;
+  border-radius: 50%;
+}
+
+.producto-linea {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 10px 0;
+}
+
+.producto-linea select,
+.producto-linea input {
+  padding: 5px;
+}
+
+.producto-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0;
+}
+
+.producto-item button {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+ul li {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+hr {
+  margin: 20px 0;
+}
+
+@media print {
+  .no-imprimir {
+    display: none;
+  }
+}
+
+  </style>
+</head>
+<body>  <div id="ticket">
+    <div id="ticket-header">
+      <div>
+        <div><strong>Baby Witch</strong></div>
+        <div>Av. No me se la direcccion #16-A Podria poner el de mi casa CP 55210</div>
+        <div>Nath Sanchez Noblecia</div>
+      </div>
+      <div id="logotipo">
+        <img src="NathyLLA logo.jpeg" alt="Logotipo">
+      </div>
+    </div>
+    <div style="text-align: right;">Fecha y Hora: <span id="fecha"></span></div><div class="producto-linea">
+  <button onclick="agregarProducto()">+</button>
+  <button onclick="eliminarUltimo()">-</button>
+  <select id="producto">
+    <option value="0" disabled selected>Selecciona un producto</option>
+    <option value="10">Papas chicas- $60</option>
+    <option value="20">Papas medianas - $100</option>
+    <option value="20">Papas grandes - $150</option>
+    <option value="30">Alitas 6 - $75</option>
+    <option value="20">Combo 1 - $170</option>
+    <option value="20">Combo 2 - $255</option>
+  </select>
+  <input type="number" id="cantidad" placeholder="Cantidad" min="1" value="1">
+</div>
+
+<ul id="lista-productos"></ul>
+
+<hr>
+
+<ul>
+  <li>Subtotal: $<span id="subtotal">0.00</span></li>
+  <li>Descuento (%): <input type="number" id="descuento" value="0" onchange="actualizarTotales()">%</li>
+  <li>IVA 14%: $<span id="iva">0.00</span></li>
+  <li>Total: $<span id="total">0.00</span></li>
+</ul>
+
+<button class="no-imprimir" onclick="imprimirTicket()">Imprimir</button>
+
+  </div>  <script>
+    const lista = document.getElementById("lista-productos");
+    let productosAgregados = [];
+
+    function agregarProducto() {
+      const producto = document.getElementById("producto");
+      const cantidad = parseInt(document.getElementById("cantidad").value);
+      const precio = parseFloat(producto.value);
+      const nombre = producto.options[producto.selectedIndex].text;
+
+      if (!precio || cantidad < 1) return;
+
+      const item = { nombre, cantidad, precio };
+      productosAgregados.push(item);
+
+      const li = document.createElement("li");
+      li.className = "producto-item";
+      li.innerHTML = `${nombre} x${cantidad} - $${(cantidad * precio).toFixed(2)} <button onclick="eliminarProducto(this)">X</button>`;
+      lista.appendChild(li);
+
+      actualizarTotales();
+    }
+
+    function eliminarProducto(boton) {
+      const index = Array.from(lista.children).indexOf(boton.parentElement);
+      productosAgregados.splice(index, 1);
+      boton.parentElement.remove();
+      actualizarTotales();
+    }
+
+    function eliminarUltimo() {
+      if (lista.lastChild) {
+        productosAgregados.pop();
+        lista.removeChild(lista.lastChild);
+        actualizarTotales();
+      }
+    }
+
+    function actualizarTotales() {
+      const subtotal = productosAgregados.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+      document.getElementById("subtotal").textContent = subtotal.toFixed(2);
+
+      const descuento = parseFloat(document.getElementById("descuento").value) || 0;
+      const subtotalConDescuento = subtotal - (subtotal * descuento / 100);
+      const iva = subtotalConDescuento * 0.14;
+      const total = subtotalConDescuento + iva;
+
+      document.getElementById("iva").textContent = iva.toFixed(2);
+      document.getElementById("total").textContent = total.toFixed(2);
+    }
+
+    function imprimirTicket() {
+      window.print();
+      alert("¡Gracias por su compra!");
+    }
+
+    // Fecha y hora
+    document.getElementById("fecha").textContent = new Date().toLocaleString();
+  </script></body>
+</html>
